@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Workbook Grid</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.2/p5.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      background: white;
+      padding: 20px;
+    }
+
+    .banner {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+      background: black;
+      color: white;
+      padding: 10px 0;
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+
+    .banner p {
+      display: inline-block;
+      animation: scroll 15s linear infinite;
+    }
+
+    @keyframes scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+
+    .card {
+      border: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      height: 420px;
+      cursor: pointer;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card:nth-child(n) {
+      animation-delay: calc(0.1s * var(--i));
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .title {
+      background: white;
+      padding: 15px;
+      font-weight: bold;
+      font-size: 1.25rem;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .thumb {
+      flex-grow: 1;
+      background: #eaeaea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .card:hover .thumb img {
+      transform: scale(1.1);
+    }
+
+    .desc {
+      background: white;
+      padding: 15px;
+      font-size: 1rem;
+      border-top: 1px solid #ccc;
+    }
+
+    .expanded {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px;
+    }
+
+    .expanded iframe {
+      width: 90%;
+      height: 70vh;
+      border: none;
+      margin-top: 20px;
+    }
+
+    .expanded button {
+      align-self: flex-end;
+      font-size: 1rem;
+      padding: 8px 16px;
+      background: #222;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .expanded h2 {
+      font-size: 2rem;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <p>Please don’t fail me again pls xoxo – Please don’t fail me again pls xoxo – Please don’t fail me again pls xoxo –</p>
+  </div>
+
+  <main class="grid">
+    <script>
+      const imageSources = [
+        "Excercise1.jpeg", "Excercise2.jpeg", "Excercise3.gif", "Excercise4.gif", "Excercise5.gif",
+        "Excercise6.gif", "Excercise7.gif", "Excercise8.gif", "Excercise9.gif", "Excercise10.gif", "Excercise11.gif"
+      ];
+      for (let i = 1; i <= imageSources.length; i++) {
+        document.write(`
+          <div class="card" style="--i: ${i}" onclick="expandProject(${i})">
+            <div class="title">Exercise ${i} - Placeholder</div>
+            <div class="thumb">
+              <img src="img/${imageSources[i-1]}" alt="Project ${i}">
+            </div>
+            <div class="desc">Short description of what this project is about.</div>
+          </div>
+        `);
+      }
+    </script>
+  </main>
+
+  <div id="projectExpanded" class="expanded">
+    <button onclick="closeProject()">Close ✕</button>
+    <h2 id="projectTitle"></h2>
+    <iframe id="projectIframe" src=""></iframe>
+  </div>
+
+  <script>
+    function expandProject(index) {
+      document.getElementById('projectExpanded').style.display = 'flex';
+      document.getElementById('projectTitle').innerText = `Exercise ${index} - Placeholder`;
+      document.getElementById('projectIframe').src = `exercise${index}/index.html`;
+    }
+
+    function closeProject() {
+      document.getElementById('projectExpanded').style.display = 'none';
+      document.getElementById('projectIframe').src = '';
+    }
+  </script>
+
+  <script>
+    let stars = [];
+
+    function setup() {
+      let cnv = createCanvas(window.innerWidth, window.innerHeight);
+      cnv.position(0, 0);
+      cnv.style('z-index', '-1');
+      cnv.style('position', 'fixed');
+      noStroke();
+      for (let i = 0; i < 100; i++) {
+        stars.push({
+          x: random(width),
+          y: random(height),
+          r: random(1, 3),
+          speed: random(0.2, 1)
+        });
+      }
+    }
+
+    function draw() {
+      clear();
+      for (let star of stars) {
+        fill(255, 255, 255, 150);
+        circle(star.x, star.y, star.r);
+        star.y -= star.speed;
+        if (star.y < 0) {
+          star.y = height;
+          star.x = random(width);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
